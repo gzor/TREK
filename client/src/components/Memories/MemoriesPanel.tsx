@@ -338,7 +338,7 @@ export default function MemoriesPanel({ tripId, startDate, endDate }: MemoriesPa
   // ── Helpers ───────────────────────────────────────────────────────────────
 
   const thumbnailBaseUrl = (photo: TripPhoto) =>
-    `/api/integrations/${photo.provider}/assets/${photo.asset_id}/thumbnail?userId=${photo.user_id}`
+    `/api/integrations/${photo.provider}/assets/${tripId}/${photo.asset_id}/${photo.user_id}/thumbnail`
 
   const makePickerKey = (provider: string, assetId: string): string => `${provider}::${assetId}`
 
@@ -775,12 +775,12 @@ export default function MemoriesPanel({ tripId, startDate, endDate }: MemoriesPa
                 <div key={`${photo.provider}:${photo.asset_id}`} className="group"
                   style={{ position: 'relative', aspectRatio: '1', borderRadius: 10, overflow: 'visible', cursor: 'pointer' }}
                   onClick={() => {
-                    setLightboxId(photo.immich_asset_id); setLightboxUserId(photo.user_id); setLightboxInfo(null)
+                    setLightboxId(photo.asset_id); setLightboxUserId(photo.user_id); setLightboxInfo(null)
                     if (lightboxOriginalSrc) URL.revokeObjectURL(lightboxOriginalSrc)
                     setLightboxOriginalSrc('')
-                    fetchImageAsBlob(`/api/integrations/immich/assets/${photo.immich_asset_id}/original?userId=${photo.user_id}`).then(setLightboxOriginalSrc)
+                    fetchImageAsBlob(`/api/integrations/${photo.provider}/assets/${tripId}/${photo.asset_id}/${photo.user_id}/original`).then(setLightboxOriginalSrc)
                     setLightboxInfoLoading(true)
-                    apiClient.get(`/integrations/${photo.provider}/assets/${photo.asset_id}/info?userId=${photo.user_id}`)
+                    apiClient.get(`/integrations/${photo.provider}/assets/${tripId}/${photo.asset_id}/${photo.user_id}/info`)
                       .then(r => setLightboxInfo(r.data)).catch(() => {}).finally(() => setLightboxInfoLoading(false))
                   }}>
 

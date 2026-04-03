@@ -12,11 +12,11 @@ import {
     searchSynologyPhotos,
     getSynologyAssetInfo,
     pipeSynologyProxy,
-    getSynologyTargetUserId,
     streamSynologyAsset,
     handleSynologyError,
     SynologyServiceError,
 } from '../services/synologyService';
+import { canAccessUserPhoto } from '../services/memoriesService';
 
 const router = express.Router();
 
@@ -121,24 +121,32 @@ router.post('/search', authenticate, async (req: Request, res: Response) => {
     }
 });
 
-router.get('/assets/:photoId/info', authenticate, async (req: Request, res: Response) => {
+router.get('/assets/:tripId/:photoId/:ownerId/info', authenticate, async (req: Request, res: Response) => {
     const authReq = req as AuthRequest;
-    const { photoId } = req.params;
+    const { tripId, photoId, ownerId } = req.params;
+
+    if (!canAccessUserPhoto(authReq.user.id, Number(ownerId), tripId, photoId, 'synologyphotos')) {
+        return handleSynologyError(res, new SynologyServiceError(403, 'You don\'t have access to this photo'), 'Access denied');
+    }
 
     try {
-        res.json(await getSynologyAssetInfo(authReq.user.id, photoId, getSynologyTargetUserId(req)));
+        res.json(await getSynologyAssetInfo(authReq.user.id, photoId, Number(ownerId)));
     } catch (err: unknown) {
         handleSynologyError(res, err, 'Could not reach Synology');
     }
 });
 
-router.get('/assets/:photoId/thumbnail', authenticate, async (req: Request, res: Response) => {
+router.get('/assets/:tripId/:photoId/:ownerId/thumbnail', authenticate, async (req: Request, res: Response) => {
     const authReq = req as AuthRequest;
-    const { photoId } = req.params;
+    const { tripId, photoId, ownerId } = req.params;
     const { size = 'sm' } = req.query;
 
+    if (!canAccessUserPhoto(authReq.user.id, Number(ownerId), tripId, photoId, 'synologyphotos')) {
+        return handleSynologyError(res, new SynologyServiceError(403, 'You don\'t have access to this photo'), 'Access denied');
+    }
+
     try {
-        const proxy = await streamSynologyAsset(authReq.user.id, getSynologyTargetUserId(req), photoId, 'thumbnail', String(size));
+        const proxy = await streamSynologyAsset(authReq.user.id, Number(ownerId), photoId, 'thumbnail', String(size));
         await pipeSynologyProxy(res, proxy);
     } catch (err: unknown) {
         if (res.headersSent) {
@@ -148,12 +156,16 @@ router.get('/assets/:photoId/thumbnail', authenticate, async (req: Request, res:
     }
 });
 
-router.get('/assets/:photoId/original', authenticate, async (req: Request, res: Response) => {
+router.get('/assets/:tripId/:photoId/:ownerId/original', authenticate, async (req: Request, res: Response) => {
     const authReq = req as AuthRequest;
-    const { photoId } = req.params;
+    const { tripId, photoId, ownerId } = req.params;
+    
+    if (!canAccessUserPhoto(authReq.user.id, Number(ownerId), tripId, photoId, 'synologyphotos')) {
+        return handleSynologyError(res, new SynologyServiceError(403, 'You don\'t have access to this photo'), 'Access denied');
+    }
 
     try {
-        const proxy = await streamSynologyAsset(authReq.user.id, getSynologyTargetUserId(req), photoId, 'original');
+        const proxy = await streamSynologyAsset(authReq.user.id, Number(ownerId), photoId, 'original');
         await pipeSynologyProxy(res, proxy);
     } catch (err: unknown) {
         if (res.headersSent) {

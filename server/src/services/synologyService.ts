@@ -1,13 +1,9 @@
 import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
-import { NextFunction, Request, Response as ExpressResponse } from 'express';
-import { db, canAccessTrip } from '../db/database';
+import { Request, Response as ExpressResponse } from 'express';
+import { db } from '../db/database';
 import { decrypt_api_key, maybe_encrypt_api_key } from './apiKeyCrypto';
-import { authenticate } from '../middleware/auth';
-import { AuthRequest } from '../types';
-import { consumeEphemeralToken } from './ephemeralTokens';
 import { checkSsrf } from '../utils/ssrfGuard';
-import { no } from 'zod/locales';
 
 const SYNOLOGY_API_TIMEOUT_MS = 30000;
 const SYNOLOGY_PROVIDER = 'synologyphotos';
@@ -270,11 +266,6 @@ function normalizeSynologyPhotoInfo(item: SynologyPhotoItem): SynologyPhotoInfo 
     };
 }
 
-export function getSynologyTargetUserId(req: Request): number {
-    const { userId } = req.query;
-    return Number(userId);
-}
-
 export function handleSynologyError(res: ExpressResponse, err: unknown, fallbackMessage: string): ExpressResponse {
     if (err instanceof SynologyServiceError) {
         return res.status(err.status).json({ error: err.message });
@@ -295,23 +286,6 @@ function splitPackedSynologyId(rawId: string): { id: string; cacheKey: string; a
     return { id, cacheKey: rawId, assetId: rawId };
 }
 
-function canStreamSynologyAsset(requestingUserId: number, targetUserId: number, assetId: string): boolean {
-    if (requestingUserId === targetUserId) {
-        return true;
-    }
-
-    const sharedAsset = db.prepare(`
-        SELECT 1
-        FROM trip_photos
-        WHERE user_id = ?
-          AND asset_id = ?
-          AND provider = 'synologyphotos'
-          AND shared = 1
-        LIMIT 1
-    `).get(targetUserId, assetId);
-
-    return !!sharedAsset;
-}
 
 async function getSynologySession(userId: number): Promise<SynologySession> {
     const cachedSid = readSynologyUser(userId, ['synology_sid'])?.synology_sid || null;
@@ -514,9 +488,6 @@ export async function searchSynologyPhotos(userId: number, from?: string, to?: s
 }
 
 export async function getSynologyAssetInfo(userId: number, photoId: string, targetUserId?: number): Promise<SynologyPhotoInfo> {
-    if (!canStreamSynologyAsset(userId, targetUserId ?? userId, photoId)) {
-        throw new SynologyServiceError(403, 'Youd don\'t have access to this photo');
-    }
     const parsedId = splitPackedSynologyId(photoId);
     const result = await requestSynologyApi<{ list: SynologyPhotoItem[] }>(targetUserId ?? userId, {
         api: 'SYNO.Foto.Browse.Item',
@@ -546,11 +517,7 @@ export async function streamSynologyAsset(
     photoId: string,
     kind: 'thumbnail' | 'original',
     size?: string,
-): Promise<SynologyProxyResult> {
-    if (!canStreamSynologyAsset(userId, targetUserId, photoId)) {
-        throw new SynologyServiceError(403, 'Youd don\'t have access to this photo');
-    }
-    
+): Promise<SynologyProxyResult> {    
     const parsedId = splitPackedSynologyId(photoId);
     const synology_url = getSynologyCredentials(targetUserId).synology_url;
     if (!synology_url) {

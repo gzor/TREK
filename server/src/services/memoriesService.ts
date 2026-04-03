@@ -3,6 +3,34 @@ import { notifyTripMembers } from './notifications';
 
 type ServiceError = { error: string; status: number };
 
+
+/**
+ * Verify that requestingUserId can access a shared photo belonging to ownerUserId.
+ * The asset must be shared (shared=1) and the requesting user must be a member of
+ * the same trip that contains the photo.
+ */
+export function canAccessUserPhoto(requestingUserId: number, ownerUserId: number, tripId: string, assetId: string, provider: string): boolean {
+  if (requestingUserId === ownerUserId) {
+    return true;
+  }
+  const sharedAsset = db.prepare(`
+    SELECT 1
+    FROM trip_photos
+    WHERE user_id = ?
+      AND asset_id = ?
+      AND provider = ?
+      AND trip_id = ?
+      AND shared = 1
+    LIMIT 1
+    `).get(ownerUserId, assetId, provider, tripId);
+
+  if (!sharedAsset) {
+    return false;
+  }
+  return !!canAccessTrip(String(tripId), requestingUserId);
+}
+
+
 function accessDeniedIfMissing(tripId: string, userId: number): ServiceError | null {
   if (!canAccessTrip(tripId, userId)) {
     return { error: 'Trip not found', status: 404 };

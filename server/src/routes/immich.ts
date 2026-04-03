@@ -15,11 +15,11 @@ import {
   proxyThumbnail,
   proxyOriginal,
   isValidAssetId,
-  canAccessUserPhoto,
   listAlbums,
   syncAlbumAssets,
   getAssetInfo,
 } from '../services/immichService';
+import { canAccessUserPhoto } from '../services/memoriesService';
 
 const router = express.Router();
 
@@ -83,48 +83,42 @@ router.post('/search', authenticate, async (req: Request, res: Response) => {
 
 // ── Asset Details ──────────────────────────────────────────────────────────
 
-router.get('/assets/:assetId/info', authenticate, async (req: Request, res: Response) => {
+router.get('/assets/:tripId/:assetId/:ownerId/info', authenticate, async (req: Request, res: Response) => {
   const authReq = req as AuthRequest;
-  const { assetId } = req.params;
-  if (!isValidAssetId(assetId)) return res.status(400).json({ error: 'Invalid asset ID' });
-  const queryUserId = req.query.userId ? Number(req.query.userId) : undefined;
-  const ownerUserId = queryUserId && queryUserId !== authReq.user.id ? queryUserId : undefined;
-  if (ownerUserId && !canAccessUserPhoto(authReq.user.id, ownerUserId, assetId)) {
+  const { tripId, assetId, ownerId } = req.params;
+
+  if (!canAccessUserPhoto(authReq.user.id, Number(ownerId), tripId, assetId, 'immich')) {
     return res.status(403).json({ error: 'Forbidden' });
   }
-  const result = await getAssetInfo(authReq.user.id, assetId, ownerUserId);
+  const result = await getAssetInfo(authReq.user.id, assetId, Number(ownerId));
   if (result.error) return res.status(result.status!).json({ error: result.error });
   res.json(result.data);
 });
 
 // ── Proxy Immich Assets ────────────────────────────────────────────────────
 
-router.get('/assets/:assetId/thumbnail', authFromQuery, async (req: Request, res: Response) => {
+router.get('/assets/:tripId/:assetId/:ownerId/thumbnail', authFromQuery, async (req: Request, res: Response) => {
   const authReq = req as AuthRequest;
-  const { assetId } = req.params;
-  if (!isValidAssetId(assetId)) return res.status(400).send('Invalid asset ID');
-  const queryUserId = req.query.userId ? Number(req.query.userId) : undefined;
-  const ownerUserId = queryUserId && queryUserId !== authReq.user.id ? queryUserId : undefined;
-  if (ownerUserId && !canAccessUserPhoto(authReq.user.id, ownerUserId, assetId)) {
-    return res.status(403).send('Forbidden');
+  const { tripId, assetId, ownerId } = req.params;
+
+  if (!canAccessUserPhoto(authReq.user.id, Number(ownerId), tripId, assetId, 'immich')) {
+    return res.status(403).json({ error: 'Forbidden' });
   }
-  const result = await proxyThumbnail(authReq.user.id, assetId, ownerUserId);
+  const result = await proxyThumbnail(authReq.user.id, assetId, Number(ownerId));
   if (result.error) return res.status(result.status!).send(result.error);
   res.set('Content-Type', result.contentType!);
   res.set('Cache-Control', 'public, max-age=86400');
   res.send(result.buffer);
 });
 
-router.get('/assets/:assetId/original', authFromQuery, async (req: Request, res: Response) => {
+router.get('/assets/:tripId/:assetId/:ownerId/original', authFromQuery, async (req: Request, res: Response) => {
   const authReq = req as AuthRequest;
-  const { assetId } = req.params;
-  if (!isValidAssetId(assetId)) return res.status(400).send('Invalid asset ID');
-  const queryUserId = req.query.userId ? Number(req.query.userId) : undefined;
-  const ownerUserId = queryUserId && queryUserId !== authReq.user.id ? queryUserId : undefined;
-  if (ownerUserId && !canAccessUserPhoto(authReq.user.id, ownerUserId, assetId)) {
-    return res.status(403).send('Forbidden');
+  const { tripId, assetId, ownerId } = req.params;
+
+  if (!canAccessUserPhoto(authReq.user.id, Number(ownerId), tripId, assetId, 'immich')) {
+    return res.status(403).json({ error: 'Forbidden' });
   }
-  const result = await proxyOriginal(authReq.user.id, assetId, ownerUserId);
+  const result = await proxyOriginal(authReq.user.id, assetId, Number(ownerId));
   if (result.error) return res.status(result.status!).send(result.error);
   res.set('Content-Type', result.contentType!);
   res.set('Cache-Control', 'public, max-age=86400');

@@ -190,19 +190,6 @@ export async function searchPhotos(
 
 // ── Asset Info / Proxy ─────────────────────────────────────────────────────
 
-/**
- * Verify that requestingUserId can access a shared photo belonging to ownerUserId.
- * The asset must be shared (shared=1) and the requesting user must be a member of
- * the same trip that contains the photo.
- */
-export function canAccessUserPhoto(requestingUserId: number, ownerUserId: number, assetId: string): boolean {
-  const row = db.prepare(`
-    SELECT tp.trip_id FROM trip_photos tp
-    WHERE tp.immich_asset_id = ? AND tp.user_id = ? AND tp.shared = 1
-  `).get(assetId, ownerUserId) as { trip_id: number } | undefined;
-  if (!row) return false;
-  return !!canAccessTrip(String(row.trip_id), requestingUserId);
-}
 
 export async function getAssetInfo(
   userId: number,
