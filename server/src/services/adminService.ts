@@ -7,7 +7,7 @@ import { User, Addon } from '../types';
 import { updateJwtSecret } from '../config';
 import { maybe_encrypt_api_key, decrypt_api_key } from './apiKeyCrypto';
 import { getAllPermissions, savePermissions as savePerms, PERMISSION_ACTIONS } from './permissions';
-import { revokeUserSessions } from '../mcp';
+import { revokeUserSessions, revokeUserSessionsForClient } from '../mcp';
 import { validatePassword } from './passwordPolicy';
 import { getPhotoProviderConfig } from './memories/helpersService';
 import { send as sendNotification } from './notificationService';
@@ -600,6 +600,30 @@ export function deleteMcpToken(id: string) {
   if (!token) return { error: 'Token not found', status: 404 };
   db.prepare('DELETE FROM mcp_tokens WHERE id = ?').run(id);
   revokeUserSessions(token.user_id);
+  return {};
+}
+
+// ── OAuth Sessions ─────────────────────────────────────────────────────────
+
+export function listOAuthSessions() {
+  const rows = db.prepare(`
+    SELECT ot.id, ot.client_id, oc.name AS client_name, ot.user_id, u.username,
+           ot.scopes, ot.access_token_expires_at, ot.refresh_token_expires_at, ot.created_at
+    FROM oauth_tokens ot
+    JOIN oauth_clients oc ON ot.client_id = oc.client_id
+    JOIN users u ON u.id = ot.user_id
+    WHERE ot.revoked_at IS NULL
+      AND ot.refresh_token_expires_at > CURRENT_TIMESTAMP
+    ORDER BY ot.created_at DESC
+  `).all() as (Record<string, unknown> & { scopes: string })[];
+  return rows.map(r => ({ ...r, scopes: JSON.parse(r.scopes) }));
+}
+
+export function revokeOAuthSession(id: string) {
+  const row = db.prepare('SELECT id, user_id, client_id FROM oauth_tokens WHERE id = ?').get(id) as { id: number; user_id: number; client_id: string } | undefined;
+  if (!row) return { error: 'Session not found', status: 404 };
+  db.prepare('UPDATE oauth_tokens SET revoked_at = CURRENT_TIMESTAMP WHERE id = ?').run(id);
+  revokeUserSessionsForClient(row.user_id, row.client_id);
   return {};
 }
 

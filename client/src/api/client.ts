@@ -1,7 +1,7 @@
 import axios, { AxiosInstance } from 'axios'
 import { getSocketId } from './websocket'
 
-const apiClient: AxiosInstance = axios.create({
+export const apiClient: AxiosInstance = axios.create({
   baseURL: '/api',
   withCredentials: true,
   headers: {
@@ -69,6 +69,43 @@ export const authApi = {
     list: () => apiClient.get('/auth/mcp-tokens').then(r => r.data),
     create: (name: string) => apiClient.post('/auth/mcp-tokens', { name }).then(r => r.data),
     delete: (id: number) => apiClient.delete(`/auth/mcp-tokens/${id}`).then(r => r.data),
+  },
+}
+
+export const oauthApi = {
+  /** Validate OAuth authorize params — called by consent page on load */
+  validate: (params: {
+    response_type: string
+    client_id: string
+    redirect_uri: string
+    scope: string
+    state?: string
+    code_challenge: string
+    code_challenge_method: string
+  }) => apiClient.get('/oauth/authorize/validate', { params }).then(r => r.data),
+
+  /** Submit user consent (approve or deny) */
+  authorize: (body: {
+    client_id: string
+    redirect_uri: string
+    scope: string
+    state?: string
+    code_challenge: string
+    code_challenge_method: string
+    approved: boolean
+  }) => apiClient.post('/oauth/authorize', body).then(r => r.data),
+
+  clients: {
+    list: () => apiClient.get('/oauth/clients').then(r => r.data),
+    create: (data: { name: string; redirect_uris: string[]; allowed_scopes: string[] }) =>
+      apiClient.post('/oauth/clients', data).then(r => r.data),
+    rotate: (id: string) => apiClient.post(`/oauth/clients/${id}/rotate`).then(r => r.data),
+    delete: (id: string) => apiClient.delete(`/oauth/clients/${id}`).then(r => r.data),
+  },
+
+  sessions: {
+    list: () => apiClient.get('/oauth/sessions').then(r => r.data),
+    revoke: (id: number) => apiClient.delete(`/oauth/sessions/${id}`).then(r => r.data),
   },
 }
 
@@ -195,6 +232,8 @@ export const adminApi = {
     apiClient.get('/admin/audit-log', { params }).then(r => r.data),
   mcpTokens: () => apiClient.get('/admin/mcp-tokens').then(r => r.data),
   deleteMcpToken: (id: number) => apiClient.delete(`/admin/mcp-tokens/${id}`).then(r => r.data),
+  oauthSessions: () => apiClient.get('/admin/oauth-sessions').then(r => r.data),
+  revokeOAuthSession: (id: number) => apiClient.delete(`/admin/oauth-sessions/${id}`).then(r => r.data),
   getPermissions: () => apiClient.get('/admin/permissions').then(r => r.data),
   updatePermissions: (permissions: Record<string, string>) => apiClient.put('/admin/permissions', { permissions }).then(r => r.data),
   rotateJwtSecret: () => apiClient.post('/admin/rotate-jwt-secret').then(r => r.data),

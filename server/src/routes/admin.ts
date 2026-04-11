@@ -3,6 +3,7 @@ import { authenticate, adminOnly } from '../middleware/auth';
 import { AuthRequest } from '../types';
 import { writeAudit, getClientIp, logInfo } from '../services/auditLog';
 import * as svc from '../services/adminService';
+import { invalidateMcpSessions } from '../mcp';
 import { getPreferencesMatrix, setAdminPreferences } from '../services/notificationPreferencesService';
 
 const router = express.Router();
@@ -292,6 +293,8 @@ router.put('/addons/:id', (req: Request, res: Response) => {
     ip: getClientIp(req),
     details: result.auditDetails,
   });
+  // Invalidate all MCP sessions so they re-create with the updated addon tool set
+  invalidateMcpSessions();
   res.json({ addon: result.addon });
 });
 
@@ -307,6 +310,25 @@ router.delete('/mcp-tokens/:id', (req: Request, res: Response) => {
   res.json({ success: true });
 });
 
+// ── OAuth Sessions ─────────────────────────────────────────────────────────
+
+router.get('/oauth-sessions', (_req: Request, res: Response) => {
+  res.json({ sessions: svc.listOAuthSessions() });
+});
+
+router.delete('/oauth-sessions/:id', (req: Request, res: Response) => {
+  const result = svc.revokeOAuthSession(req.params.id);
+  if ('error' in result) return res.status(result.status!).json({ error: result.error });
+  const authReq = req as AuthRequest;
+  writeAudit({
+    userId: authReq.user.id,
+    action: 'admin.oauth_session.revoke',
+    resource: String(req.params.id),
+    ip: getClientIp(req),
+  });
+  res.json({ success: true });
+});
+
 // ── JWT Rotation ───────────────────────────────────────────────────────────
 
 router.post('/rotate-jwt-secret', (req: Request, res: Response) => {
@@ -314,12 +336,8 @@ router.post('/rotate-jwt-secret', (req: Request, res: Response) => {
   if (result.error) return res.status(result.status!).json({ error: result.error });
   const authReq = req as AuthRequest;
   writeAudit({
-    user_id: authReq.user?.id ?? null,
-    username: authReq.user?.username ?? 'unknown',
+    userId: authReq.user.id,
     action: 'admin.rotate_jwt_secret',
-    target_type: 'system',
-    target_id: null,
-    details: null,
     ip: getClientIp(req),
   });
   res.json({ success: true });

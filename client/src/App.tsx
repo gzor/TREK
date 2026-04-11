@@ -15,6 +15,7 @@ import JourneyDetailPage from './pages/JourneyDetailPage'
 import JourneyPublicPage from './pages/JourneyPublicPage'
 import SharedTripPage from './pages/SharedTripPage'
 import InAppNotificationsPage from './pages/InAppNotificationsPage.tsx'
+import OAuthAuthorizePage from './pages/OAuthAuthorizePage'
 import { ToastContainer } from './components/shared/Toast'
 import BottomNav from './components/Layout/BottomNav'
 import { TranslationProvider, useTranslation } from './i18n'
@@ -173,6 +174,8 @@ export default function App() {
         <Route path="/shared/:token" element={<SharedTripPage />} />
         <Route path="/public/journey/:token" element={<JourneyPublicPage />} />
         <Route path="/register" element={<LoginPage />} />
+        {/* OAuth 2.1 consent page — intentionally outside ProtectedRoute */}
+        <Route path="/oauth/authorize" element={<OAuthAuthorizePage />} />
         <Route
           path="/dashboard"
           element={
