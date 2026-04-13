@@ -1374,6 +1374,7 @@ function ProviderPicker({ provider, userId, entries, trips, existingAssetIds, on
   const [customTo, setCustomTo] = useState('')
   const [targetEntryId, setTargetEntryId] = useState<number | null>(null)
   const [addToOpen, setAddToOpen] = useState(false)
+  const abortRef = useRef<AbortController | null>(null)
 
   // compute trip range
   const tripRange = useMemo(() => {
@@ -1385,26 +1386,36 @@ function ProviderPicker({ provider, userId, entries, trips, existingAssetIds, on
     return { from, to }
   }, [trips])
 
+  const cancelPending = () => {
+    if (abortRef.current) abortRef.current.abort()
+    abortRef.current = new AbortController()
+    return abortRef.current.signal
+  }
+
   const searchPhotos = async (from: string, to: string) => {
+    const signal = cancelPending()
     setLoading(true)
+    setPhotos([])
     try {
       const res = await fetch(`/api/integrations/memories/${provider}/search`, {
-        method: 'POST', credentials: 'include',
+        method: 'POST', credentials: 'include', signal,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ from, to }),
       })
       if (res.ok) setPhotos((await res.json()).assets || [])
-    } catch {}
-    setLoading(false)
+    } catch (e: any) { if (e.name !== 'AbortError') {} }
+    if (!signal.aborted) setLoading(false)
   }
 
   const loadAlbumPhotos = async (albumId: string) => {
+    const signal = cancelPending()
     setLoading(true)
+    setPhotos([])
     try {
-      const res = await fetch(`/api/integrations/memories/${provider}/albums/${albumId}/photos`, { credentials: 'include' })
+      const res = await fetch(`/api/integrations/memories/${provider}/albums/${albumId}/photos`, { credentials: 'include', signal })
       if (res.ok) setPhotos((await res.json()).assets || [])
-    } catch {}
-    setLoading(false)
+    } catch (e: any) { if (e.name !== 'AbortError') {} }
+    if (!signal.aborted) setLoading(false)
   }
 
   const loadAlbums = async () => {

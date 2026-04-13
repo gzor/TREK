@@ -155,10 +155,10 @@ export async function searchPhotos(
   if (!creds) return { error: 'Immich not configured', status: 400 };
 
   try {
-    // Paginate through all results (Immich limits per-page to 1000)
     const allAssets: any[] = [];
     let page = 1;
     const pageSize = 1000;
+    const maxPages = 5; // Cap at 5000 photos to avoid timeouts on large libraries
     while (true) {
       const resp = await safeFetch(`${creds.immich_url}/api/search/metadata`, {
         method: 'POST',
@@ -176,9 +176,9 @@ export async function searchPhotos(
       const data = await resp.json() as { assets?: { items?: any[] } };
       const items = data.assets?.items || [];
       allAssets.push(...items);
-      if (items.length < pageSize) break; // Last page
+      if (items.length < pageSize) break;
       page++;
-      if (page > 20) break; // Safety limit (20k photos max)
+      if (page > maxPages) break;
     }
     const assets = allAssets.map((a: any) => ({
       id: a.id,
@@ -186,7 +186,7 @@ export async function searchPhotos(
       city: a.exifInfo?.city || null,
       country: a.exifInfo?.country || null,
     }));
-    return { assets };
+    return { assets, hasMore: page > maxPages };
   } catch {
     return { error: 'Could not reach Immich', status: 502 };
   }
