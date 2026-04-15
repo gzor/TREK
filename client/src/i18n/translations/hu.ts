@@ -934,6 +934,7 @@ const hu: Record<string, string | { name: string; category: string }[]> = {
   'places.reservationNotesPlaceholder': 'Foglalási jegyzetek, visszaigazolási szám...',
   'places.mapsSearchPlaceholder': 'Helyek keresése...',
   'places.mapsSearchError': 'Helykeresés sikertelen.',
+  'places.loadingDetails': 'Hely adatainak betöltése…',
   'places.osmHint': 'OpenStreetMap keresés aktív (képek, nyitvatartás és értékelések nélkül). Bővített adatokhoz add meg a Google API kulcsot a beállításokban.',
   'places.osmActive': 'Keresés OpenStreetMap-en keresztül (képek, értékelések és nyitvatartás nélkül). Bővített adatokhoz add meg a Google API kulcsot a beállításokban.',
   'places.categoryCreateError': 'Nem sikerült létrehozni a kategóriát',

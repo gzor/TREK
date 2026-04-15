@@ -895,6 +895,7 @@ const pl: Record<string, string | { name: string; category: string }[]> = {
   'places.reservationNotesPlaceholder': 'Notatki z rezerwacji, numer potwierdzenia...',
   'places.mapsSearchPlaceholder': 'Szukaj miejsc...',
   'places.mapsSearchError': 'Nie udało się wyszukać miejsca.',
+  'places.loadingDetails': 'Ładowanie szczegółów miejsca…',
   'places.osmHint': 'Korzystając z OpenStreetMap (brak zdjęć, godzin otwarcia czy ocen). Dodaj klucz API Google w ustawieniach aby uzyskać pełne dane.',
   'places.osmActive': 'Szukaj przez OpenStreetMap (brak zdjęć, ocen czy godzin otwarcia). Dodaj klucz API Google w ustawieniach aby uzyskać pełne dane.',
   'places.categoryCreateError': 'Nie udało się utworzyć kategorii',

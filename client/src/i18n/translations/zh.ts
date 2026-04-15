@@ -933,6 +933,7 @@ const zh: Record<string, string> = {
   'places.reservationNotesPlaceholder': '预订备注、确认号...',
   'places.mapsSearchPlaceholder': '搜索地点...',
   'places.mapsSearchError': '地点搜索失败。',
+  'places.loadingDetails': '正在加载地点详情…',
   'places.osmHint': '使用 OpenStreetMap 搜索（无照片、营业时间或评分）。在设置中添加 Google API 密钥以获取完整信息。',
   'places.osmActive': '通过 OpenStreetMap 搜索（无照片、评分或营业时间）。在设置中添加 Google API 密钥以获取增强数据。',
   'places.categoryCreateError': '创建分类失败',

@@ -936,6 +936,7 @@ const ar: Record<string, string | { name: string; category: string }[]> = {
   'places.reservationNotesPlaceholder': 'ملاحظات الحجز، رقم التأكيد...',
   'places.mapsSearchPlaceholder': 'ابحث عن أماكن...',
   'places.mapsSearchError': 'فشل البحث عن المكان.',
+  'places.loadingDetails': 'جارٍ تحميل تفاصيل المكان…',
   'places.osmHint': 'يتم البحث عبر OpenStreetMap (بدون صور أو ساعات عمل أو تقييمات). أضف مفتاح Google API في الإعدادات للحصول على جميع التفاصيل.',
   'places.osmActive': 'البحث عبر OpenStreetMap (بدون صور أو تقييمات أو ساعات عمل). أضف مفتاح Google API في الإعدادات لبيانات موسعة.',
   'places.categoryCreateError': 'فشل إنشاء الفئة',

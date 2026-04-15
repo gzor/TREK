@@ -933,6 +933,7 @@ const ru: Record<string, string> = {
   'places.reservationNotesPlaceholder': 'Заметки о бронировании, номер подтверждения...',
   'places.mapsSearchPlaceholder': 'Поиск мест...',
   'places.mapsSearchError': 'Ошибка поиска мест.',
+  'places.loadingDetails': 'Загрузка данных о месте…',
   'places.osmHint': 'Поиск через OpenStreetMap (без фото, часов работы и рейтингов). Добавьте API-ключ Google в настройках для полной информации.',
   'places.osmActive': 'Поиск через OpenStreetMap (без фото, рейтингов и часов работы). Добавьте API-ключ Google в настройках для расширенных данных.',
   'places.categoryCreateError': 'Не удалось создать категорию',

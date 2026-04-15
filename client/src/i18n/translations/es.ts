@@ -909,6 +909,7 @@ const es: Record<string, string> = {
   'places.reservationNotesPlaceholder': 'Notas de reserva, número de confirmación...',
   'places.mapsSearchPlaceholder': 'Buscar lugares...',
   'places.mapsSearchError': 'La búsqueda de lugares falló.',
+  'places.loadingDetails': 'Cargando detalles del lugar…',
   'places.osmHint': 'Usando búsqueda con OpenStreetMap (sin fotos, horarios ni valoraciones). Añade una clave API de Google en Ajustes para obtener todos los detalles.',
   'places.osmActive': 'Búsqueda mediante OpenStreetMap (sin fotos, valoraciones ni horarios). Añade una clave API de Google en Ajustes para datos ampliados.',
   'places.categoryCreateError': 'No se pudo crear la categoría',

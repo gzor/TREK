@@ -959,6 +959,7 @@ const en: Record<string, string | { name: string; category: string }[]> = {
   'places.reservationNotesPlaceholder': 'Reservation notes, confirmation number...',
   'places.mapsSearchPlaceholder': 'Search places...',
   'places.mapsSearchError': 'Place search failed.',
+  'places.loadingDetails': 'Loading place details…',
   'places.osmHint': 'Using OpenStreetMap search (no photos, opening hours, or ratings). Add a Google API key in settings for full details.',
   'places.osmActive': 'Search via OpenStreetMap (no photos, ratings or opening hours). Add a Google API key in Settings for enhanced data.',
   'places.categoryCreateError': 'Failed to create category',

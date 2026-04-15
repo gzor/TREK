@@ -906,6 +906,7 @@ const br: Record<string, string | { name: string; category: string }[]> = {
   'places.reservationNotesPlaceholder': 'Notas da reserva, código de confirmação...',
   'places.mapsSearchPlaceholder': 'Buscar lugares...',
   'places.mapsSearchError': 'Falha na busca de lugares.',
+  'places.loadingDetails': 'Carregando detalhes do lugar…',
   'places.osmHint': 'Busca via OpenStreetMap (sem fotos, horários ou avaliações). Adicione uma chave Google nas configurações para detalhes completos.',
   'places.osmActive': 'Busca via OpenStreetMap (sem fotos, avaliações ou horário de funcionamento). Adicione uma chave Google em Configurações para mais dados.',
   'places.categoryCreateError': 'Falha ao criar categoria',

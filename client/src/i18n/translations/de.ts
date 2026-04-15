@@ -937,6 +937,7 @@ const de: Record<string, string | { name: string; category: string }[]> = {
   'places.reservationNotesPlaceholder': 'Reservierungsnotizen, Bestätigungsnummer...',
   'places.mapsSearchPlaceholder': 'Ortssuche...',
   'places.mapsSearchError': 'Ortssuche fehlgeschlagen.',
+  'places.loadingDetails': 'Ortsdetails werden geladen…',
   'places.osmHint': 'OpenStreetMap-Suche aktiv (ohne Bilder, Öffnungszeiten, Bewertungen). Für erweiterte Daten Google API Key in den Einstellungen hinterlegen.',
   'places.osmActive': 'Suche via OpenStreetMap (ohne Bilder, Bewertungen & Öffnungszeiten). Google API Key in den Einstellungen hinterlegen für erweiterte Daten.',
   'places.categoryCreateError': 'Fehler beim Erstellen der Kategorie',
