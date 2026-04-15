@@ -15,6 +15,11 @@ interface SettingsState {
   updateSettings: (settingsObj: Partial<Settings>) => Promise<void>
 }
 
+// Returns true when the user has explicitly chosen a language (persisted in localStorage).
+// Use this instead of reading localStorage directly so the key stays encapsulated here.
+export const hasStoredLanguage = (): boolean =>
+  typeof localStorage !== 'undefined' && !!localStorage.getItem('app_language')
+
 export const useSettingsStore = create<SettingsState>((set, get) => ({
   settings: {
     map_tile_url: '',

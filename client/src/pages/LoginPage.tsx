@@ -2,8 +2,9 @@ import React, { useState, useEffect, useMemo, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 import { useSettingsStore } from '../store/settingsStore'
-import { SUPPORTED_LANGUAGES, useTranslation, detectBrowserLanguage } from '../i18n/TranslationContext'
+import { SUPPORTED_LANGUAGES, useTranslation, detectBrowserLanguage } from '../i18n'
 import { authApi, configApi } from '../api/client'
+import { hasStoredLanguage } from '../store/settingsStore'
 import { getApiErrorMessage } from '../types'
 import { Plane, Eye, EyeOff, Mail, Lock, MapPin, Calendar, Package, User, Globe, Zap, Users, Wallet, Map, CheckSquare, BookMarked, FolderOpen, Route, Shield, KeyRound, ChevronDown } from 'lucide-react'
 
@@ -124,7 +125,7 @@ export default function LoginPage(): React.ReactElement {
   // 3. Server default (DEFAULT_LANGUAGE env var)
   // 4. 'en' → hardcoded fallback already in store
   useEffect(() => {
-    if (localStorage.getItem('app_language')) return
+    if (hasStoredLanguage()) return
 
     const detected = detectBrowserLanguage()
     if (detected) {
@@ -396,6 +397,9 @@ export default function LoginPage(): React.ReactElement {
       <div style={{ position: 'absolute', top: 16, right: 16, zIndex: 10 }}>
         <button
           onClick={(e) => { e.stopPropagation(); setLangDropdownOpen(o => !o) }}
+          aria-haspopup="listbox"
+          aria-expanded={langDropdownOpen}
+          aria-label="Change language"
           style={{
             display: 'flex', alignItems: 'center', gap: 6,
             padding: '6px 12px', borderRadius: 99,
@@ -414,6 +418,8 @@ export default function LoginPage(): React.ReactElement {
 
         {langDropdownOpen && (
           <div
+            role="listbox"
+            aria-label="Select language"
             onClick={(e) => e.stopPropagation()}
             style={{
               position: 'absolute', top: '100%', right: 0, marginTop: 4,
@@ -426,6 +432,8 @@ export default function LoginPage(): React.ReactElement {
             {SUPPORTED_LANGUAGES.map(({ value, label }) => (
               <button
                 key={value}
+                role="option"
+                aria-selected={value === language}
                 onClick={() => { setLanguageLocal(value); setLangDropdownOpen(false) }}
                 style={{
                   display: 'block', width: '100%', textAlign: 'left',

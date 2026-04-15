@@ -59,8 +59,10 @@ export function detectBrowserLanguage(): string | null {
     const exactMatch = supported.find(s => s.toLowerCase() === lang.toLowerCase())
     if (exactMatch) return exactMatch
 
-    // Portuguese variants → our code is 'br' (pt-BR)
-    if (lang.toLowerCase().startsWith('pt')) return 'br'
+    // pt-BR has no exact match (our code is 'br', not 'pt-BR'), so map it explicitly.
+    // pt-PT and bare 'pt' are NOT mapped — they fall through to null and let the
+    // server default or 'en' fallback apply instead.
+    if (lang.toLowerCase() === 'pt-br') return 'br'
 
     // Prefix match (e.g. 'de-AT' → 'de', 'zh-CN' → 'zh') — case-insensitive
     const prefix = lang.split('-')[0].toLowerCase()
