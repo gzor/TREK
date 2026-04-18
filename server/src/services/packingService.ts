@@ -1,6 +1,27 @@
 import { db, canAccessTrip } from '../db/database';
 
-const BAG_COLORS = ['#6366f1', '#ec4899', '#f97316', '#10b981', '#06b6d4', '#8b5cf6', '#ef4444', '#f59e0b'];
+const BAG_COLORS = [
+  '#6366f1', // indigo
+  '#ec4899', // pink
+  '#f97316', // orange
+  '#10b981', // emerald
+  '#06b6d4', // cyan
+  '#8b5cf6', // violet
+  '#ef4444', // red
+  '#f59e0b', // amber
+  '#84cc16', // lime
+  '#14b8a6', // teal
+  '#f43f5e', // rose
+  '#a855f7', // purple
+  '#3b82f6', // blue
+  '#22c55e', // green
+  '#eab308', // yellow
+  '#64748b', // slate
+  '#0ea5e9', // sky
+  '#d946ef', // fuchsia
+  '#fb7185', // light rose
+  '#34d399', // light emerald
+];
 
 export function verifyTripAccess(tripId: string | number, userId: number) {
   return canAccessTrip(tripId, userId);
