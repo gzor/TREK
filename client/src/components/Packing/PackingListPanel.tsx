@@ -1204,8 +1204,8 @@ export default function PackingListPanel({ tripId, items }: PackingListPanelProp
 
           {bags.map(bag => {
             const bagItems = items.filter(i => i.bag_id === bag.id)
-            const totalWeight = bagItems.reduce((sum, i) => sum + (i.weight_grams || 0), 0)
-            const maxWeight = bag.weight_limit_grams || Math.max(...bags.map(b => items.filter(i => i.bag_id === b.id).reduce((s, i) => s + (i.weight_grams || 0), 0)), 1)
+            const totalWeight = bagItems.reduce((sum, i) => sum + (i.weight_grams * i.quantity || 0), 0)
+            const maxWeight = bag.weight_limit_grams || Math.max(...bags.map(b => items.filter(i => i.bag_id === b.id).reduce((s, i) => s + (i.weight_grams * i.quantity || 0), 0)), 1)
             const pct = Math.min(100, Math.round((totalWeight / maxWeight) * 100))
             return (
               <BagCard key={bag.id} bag={bag} bagItems={bagItems} totalWeight={totalWeight} pct={pct} tripId={tripId} tripMembers={tripMembers} canEdit={canEdit} onDelete={() => handleDeleteBag(bag.id)} onUpdate={handleUpdateBag} onSetMembers={handleSetBagMembers} t={t} compact />
