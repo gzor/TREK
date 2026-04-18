@@ -4,7 +4,7 @@ declare global { interface Window { __dragData: DragDataPayload | null } }
 
 import React, { useState, useEffect, useRef, useMemo } from 'react'
 import ReactDOM from 'react-dom'
-import { ChevronDown, ChevronRight, ChevronUp, Navigation, RotateCcw, ExternalLink, Clock, Pencil, GripVertical, Ticket, Plus, FileText, Check, Trash2, Info, MapPin, Star, Heart, Camera, Lightbulb, Flag, Bookmark, Train, Bus, Plane, Car, Ship, Coffee, ShoppingBag, AlertTriangle, FileDown, Lock, Hotel, Utensils, Users, Undo2, X, Route as RouteIcon } from 'lucide-react'
+import { ChevronDown, ChevronRight, ChevronUp, ChevronsDownUp, ChevronsUpDown, Navigation, RotateCcw, ExternalLink, Clock, Pencil, GripVertical, Ticket, Plus, FileText, Check, Trash2, Info, MapPin, Star, Heart, Camera, Lightbulb, Flag, Bookmark, Train, Bus, Plane, Car, Ship, Coffee, ShoppingBag, AlertTriangle, FileDown, Lock, Hotel, Utensils, Users, Undo2, X, Route as RouteIcon } from 'lucide-react'
 
 const RES_ICONS = { flight: Plane, hotel: Hotel, restaurant: Utensils, train: Train, car: Car, cruise: Ship, event: Ticket, tour: Users, other: FileText }
 import { assignmentsApi, reservationsApi } from '../../api/client'
@@ -23,6 +23,7 @@ import { useSettingsStore } from '../../store/settingsStore'
 import { useTranslation } from '../../i18n'
 import { formatDate, formatTime, dayTotalCost, currencyDecimals } from '../../utils/formatters'
 import { useDayNotes } from '../../hooks/useDayNotes'
+import Tooltip from '../shared/Tooltip'
 import type { Trip, Day, Place, Category, Assignment, Reservation, AssignmentsMap, RouteResult } from '../../types'
 
 const NOTE_ICONS = [
@@ -939,18 +940,9 @@ const DayPlanSidebar = React.memo(function DayPlanSidebar({
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', position: 'relative', fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
-      {/* Reise-Titel */}
-      <div style={{ padding: '16px 16px 12px', borderBottom: '1px solid var(--border-faint)', flexShrink: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontWeight: 600, fontSize: 14, color: 'var(--text-primary)', lineHeight: '1.3' }}>{trip?.title}</div>
-            {(trip?.start_date || trip?.end_date) && (
-              <div style={{ fontSize: 11, color: 'var(--text-faint)', marginTop: 3 }}>
-                {[trip.start_date, trip.end_date].filter(Boolean).map(d => new Date(d + 'T00:00:00Z').toLocaleDateString(locale, { day: 'numeric', month: 'short', timeZone: 'UTC' })).join(' – ')}
-                {days.length > 0 && ` · ${days.length} ${t('dayplan.days')}`}
-              </div>
-            )}
-          </div>
+      {/* Toolbar */}
+      <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border-faint)', flexShrink: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 8 }}>
           <div style={{ position: 'relative', flexShrink: 0 }}>
             <button
               onClick={async () => {
@@ -1032,11 +1024,57 @@ const DayPlanSidebar = React.memo(function DayPlanSidebar({
               </div>
             )}
           </div>
+          {(() => {
+            const allExpanded = days.length > 0 && days.every(d => expandedDays.has(d.id))
+            const label = allExpanded ? t('dayplan.collapseAll') : t('dayplan.expandAll')
+            return (
+              <Tooltip label={label} placement="bottom">
+                <button
+                  onClick={() => {
+                    const next = allExpanded ? new Set() : new Set(days.map(d => d.id))
+                    setExpandedDays(next)
+                    try { sessionStorage.setItem(`day-expanded-${tripId}`, JSON.stringify([...next])) } catch {}
+                  }}
+                  aria-label={label}
+                  aria-pressed={allExpanded}
+                  style={{
+                    position: 'relative', flexShrink: 0,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    width: 30, height: 30, borderRadius: 8,
+                    border: '1px solid var(--border-primary)', background: 'none',
+                    color: 'var(--text-primary)', cursor: 'pointer', fontFamily: 'inherit', padding: 0,
+                    transition: 'color 0.15s, border-color 0.15s, background 0.15s',
+                    overflow: 'hidden',
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-hover)' }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}
+                >
+                  <span style={{
+                    position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    transition: 'opacity 0.2s ease, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                    opacity: allExpanded ? 0 : 1,
+                    transform: allExpanded ? 'translateY(-8px) scale(0.6)' : 'translateY(0) scale(1)',
+                  }}>
+                    <ChevronsUpDown size={14} strokeWidth={2} />
+                  </span>
+                  <span style={{
+                    position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    transition: 'opacity 0.2s ease, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                    opacity: allExpanded ? 1 : 0,
+                    transform: allExpanded ? 'translateY(0) scale(1)' : 'translateY(8px) scale(0.6)',
+                  }}>
+                    <ChevronsDownUp size={14} strokeWidth={2} />
+                  </span>
+                </button>
+              </Tooltip>
+            )
+          })()}
           {onUndo && (
             <div style={{ position: 'relative', flexShrink: 0 }}>
               <button
                 onClick={onUndo}
                 disabled={!canUndo}
+                aria-label={t('undo.button')}
                 onMouseEnter={() => setUndoHover(true)}
                 onMouseLeave={() => setUndoHover(false)}
                 style={{
@@ -1143,9 +1181,10 @@ const DayPlanSidebar = React.memo(function DayPlanSidebar({
                         <Pencil size={15} strokeWidth={1.8} color="var(--text-secondary)" />
                       </button>}
                       {canEditDays && onAddTransport && (
+                        <Tooltip label={t('transport.addTransport')} placement="top">
                         <button
                           onClick={e => { e.stopPropagation(); onAddTransport(day.id) }}
-                          title={t('transport.addTransport')}
+                          aria-label={t('transport.addTransport')}
                           style={{
                             flexShrink: 0,
                             background: 'none',
@@ -1162,6 +1201,7 @@ const DayPlanSidebar = React.memo(function DayPlanSidebar({
                         >
                           <Plus size={15} strokeWidth={1.8} color="var(--text-secondary)" />
                         </button>
+                        </Tooltip>
                       )}
                       {(() => {
                         const dayAccs = accommodations.filter(a => day.id >= a.start_day_id && day.id <= a.end_day_id)
@@ -1217,15 +1257,15 @@ const DayPlanSidebar = React.memo(function DayPlanSidebar({
                   </div>
                 </div>
 
-                {canEditDays && <button
+                {canEditDays && <Tooltip label={t('dayplan.addNote')} placement="top"><button
                   onClick={e => openAddNote(day.id, e)}
-                  title={t('dayplan.addNote')}
+                  aria-label={t('dayplan.addNote')}
                   style={{ flexShrink: 0, background: 'none', border: 'none', padding: 6, cursor: 'pointer', display: 'flex', alignItems: 'center', color: 'var(--text-faint)' }}
                   onMouseEnter={e => e.currentTarget.style.color = 'var(--text-primary)'}
                   onMouseLeave={e => e.currentTarget.style.color = 'var(--text-faint)'}
                 >
                   <FileText size={16} strokeWidth={2} />
-                </button>}
+                </button></Tooltip>}
                 <button
                   onClick={e => toggleDay(day.id, e)}
                   style={{ flexShrink: 0, background: 'none', border: 'none', padding: 6, cursor: 'pointer', display: 'flex', alignItems: 'center', color: 'var(--text-faint)' }}

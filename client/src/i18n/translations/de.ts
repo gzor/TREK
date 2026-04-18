@@ -148,7 +148,7 @@ const de: Record<string, string | { name: string; category: string }[]> = {
   'settings.subtitle': 'Konfigurieren Sie Ihre persönlichen Einstellungen',
   'settings.tabs.display': 'Anzeige',
   'settings.tabs.map': 'Karte',
-  'settings.tabs.notifications': 'Benachrichtigungen',
+  'settings.tabs.notifications': 'Mitteilungen',
   'settings.tabs.integrations': 'Integrationen',
   'settings.tabs.account': 'Konto',
   'settings.tabs.offline': 'Offline',
@@ -182,7 +182,7 @@ const de: Record<string, string | { name: string; category: string }[]> = {
   'settings.bookingLabels': 'Orts-Labels auf Buchungsrouten',
   'settings.bookingLabelsHint': 'Zeigt Bahnhofs-/Flughafennamen auf der Karte. Wenn aus, wird nur das Icon angezeigt.',
   'settings.blurBookingCodes': 'Buchungscodes verbergen',
-  'settings.notifications': 'Benachrichtigungen',
+  'settings.notifications': 'Mitteilungen',
   'settings.notifyTripInvite': 'Trip-Einladungen',
   'settings.notifyBookingChange': 'Buchungsänderungen',
   'settings.notifyTripReminder': 'Trip-Erinnerungen',
@@ -873,7 +873,7 @@ const de: Record<string, string | { name: string; category: string }[]> = {
 
   // Trip Planner
   'trip.tabs.plan': 'Karte',
-  'trip.tabs.transports': 'Transporte',
+  'trip.tabs.transports': 'Transport',
   'trip.tabs.reservations': 'Buchungen',
   'trip.tabs.reservationsShort': 'Buchung',
   'trip.tabs.packing': 'Liste',
@@ -908,6 +908,8 @@ const de: Record<string, string | { name: string; category: string }[]> = {
   'dayplan.cannotDropOnTimed': 'Orte können nicht zwischen zeitgebundene Einträge geschoben werden',
   'dayplan.cannotBreakChronology': 'Die zeitliche Reihenfolge von Uhrzeiten und Buchungen darf nicht verletzt werden',
   'dayplan.addNote': 'Notiz hinzufügen',
+  'dayplan.expandAll': 'Alle Tage ausklappen',
+  'dayplan.collapseAll': 'Alle Tage einklappen',
   'dayplan.editNote': 'Notiz bearbeiten',
   'dayplan.noteAdd': 'Notiz hinzufügen',
   'dayplan.noteEdit': 'Notiz bearbeiten',
@@ -932,7 +934,7 @@ const de: Record<string, string | { name: string; category: string }[]> = {
 
   // Places Sidebar
   'places.addPlace': 'Ort/Aktivität hinzufügen',
-  'places.importFile': 'Datei importieren',
+  'places.importFile': 'Dateimport',
   'places.sidebarDrop': 'Ablegen zum Importieren',
   'places.importFileHint': '.gpx-, .kml- oder .kmz-Dateien aus Tools wie Google My Maps, Google Earth oder einem GPS-Tracker importieren.',
   'places.importFileDropHere': 'Datei auswählen oder hierher ziehen und ablegen',
